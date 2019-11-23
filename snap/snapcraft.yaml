@@ -1,0 +1,48 @@
+name: 1password-linux
+version: '0.1'
+summary: 1Password for Linux
+description: 1Password for Linux
+
+grade: stable
+confinement: strict
+base: core18
+
+layout:
+  /usr/share/qt5:
+    bind: $SNAP/usr/share/qt5
+
+parts:
+  desktop-qt5:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    plugin: make
+    make-parameters: ["FLAVOR=qt5"]
+
+  1password-linux-qml:
+    after: [desktop-qt5]
+    source: .
+    plugin: dump
+    stage-packages:
+      - qmlscene
+      - qml-module-qtquick2
+      - qml-module-qtquick-window2
+      - qml-module-qtwebengine
+      - qml-module-qtquick-dialogs
+    organize:
+      1password-linux.launcher: bin/1password-linux.launcher
+
+apps:
+  1password:
+    command: 1password-linux.launcher
+    desktop: snap/gui/1password.desktop
+    plugs: &plugs
+      - browser-support
+      - desktop
+      - desktop-legacy
+      - home
+      - network
+      - opengl
+      - screen-inhibit-control
+      - x11
+    environment: &environment
+      DISABLE_WAYLAND: 1
